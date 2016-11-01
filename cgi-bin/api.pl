@@ -25,7 +25,7 @@ my $session_dir = $game_dir;#"/tmp/sessions";
 my $session;
 
 if ($q->request_method eq "POST") {
-    print STDERR "bla: ".Dumper ($q->param('POSTDATA'));
+    #print STDERR "bla: ".Dumper ($q->param('POSTDATA'));
     my $data    = decode_json($q->param('POSTDATA'));
     my $command = $data->{'cmd'};
     my $game_id = $data->{'gid'};
@@ -50,6 +50,26 @@ if ($q->request_method eq "POST") {
     # els
     if ($command =~ /up/) {
 	$response = &updatePosition ( $data, $session );
+    }
+    elsif ( $command =~ /register/ ){
+	$response = &registerUset   ( $data, $session );
+    }
+    elsif ( $command =~ /createGame/ ){
+	my $gtype = $data->{'type'};
+
+	my %new_game ;
+	$new_game{'id'}   = $game_id;
+	$new_game{'type'} = $gtype;
+	#$new_game{'wps'}  = TBD;
+
+	if ( $gtype =~ /CTF/) {
+	    $response = &createCTF (\%new_game);
+	}
+    }
+
+    elsif ( $command =~ /getGameInfo/) {
+	$response = &getGameInfo ( $game_id );
+	
     }
     
     elsif ($command =~ /others/) {
@@ -77,4 +97,5 @@ my $cookie = $q->cookie(CTFSID => $session->id);
 
 print $q->header( -type => 'text/plain',
 		  -cookie => $cookie);
+print STDERR $response;
 print $response;

@@ -17,10 +17,44 @@ angular.module('starter', ['ionic'])
 	    .state('search', {
 		url: '/search',
 		templateUrl: 'search.html'
+	    })
+	    .state('create', {
+		url: '/create/:gameid',
+		templateUrl: 'creation.html',
+		controller: 'GameCreation'
 	    });
 
 	
 	$urlRouterProvider.otherwise("index");
+    })
+
+    .controller ('GameCreation', function ($scope, $http, $stateParams) {
+	
+	$scope.createGame = function ( gameid ) {
+	    $scope.status.push("Creating game '"+gameid+"'");
+	    var data = {
+		"cmd" : "createGame",
+		"gid" : gameid,
+		"type": "CTF"
+	    };
+	    $http({
+		method : 'POST',
+		url    : api,
+		data   : data
+	    }).then(function successCallback(response) {
+		$scope.status.push("Game created");
+	    }, function errorCallback(response) {
+		$scope.status.push("Error");
+	    });
+	}
+
+	$scope.status = [];
+	console.log("creating now");
+	var api="/cgi-bin/api.pl";
+
+	$scope.createGame($stateParams.gameid);
+	
+
     })
 
     .controller('MainCtrl', function($scope) {

@@ -2,45 +2,38 @@
 
 use JSON;
 use Exporter qw(import);
- 
+use Data::Dumper;
 our @EXPORT_OK = qw(createCTF);
 
-my $game_dir    = "/tmp/games/";
+my $game_dir    = "/tmp/game/";
 
 sub createCTF {
     my $game = shift;
     my $game_id = $game->{'id'};
 
-    $game->{'wps'} = &dummyGame();
+    $game->{'wps'}  = &dummyGame();
+    $game->{'type'} = "CTF";
 
     my $my_game_dir = $game_dir."/".$game_id;
-    if (! -e $my_game_dir ) {
-	mkdir $my_game_dir;
-	open (GAME, " > ".$my_game_dir."/game");
+
+    print STDERR Dumper ($game);
+
+    if (! -e $my_game_dir."/game" ) {
+	mkdir $my_game_dir || return "Cannot create game dir";
+	open (GAME, " > $my_game_dir/game") || return "Cannot create game $my_game_dir/game";
 	print GAME JSON->new->encode( $game );
 	close (GAME);
+	return 'ok';
+	
+    }
+    else {
+	return "Game already exists";
     }
 }
 
-
-sub getGame {
-    my $game_id = shift;
-
-    my $my_game_dir = $game_dir."/".$game_id."/game/";
-
-    my $res = "";
-
-    if (-e $my_game_dir) {
-	open (GAME, "< $my_game_dir");
-	while (<GAME>) {
-	    $res.=$_;
-	}
-    }
-    return JSON->new->decode ($res);    
-}
 
 sub dummyGame {
-    my %dummy_volme_game = {
+    my %dummy_volme_game = (
 	"antenna" => { 
 	    "lat"    => 49.463602, 
 	    "lon"    => 6.097872,
@@ -68,6 +61,10 @@ sub dummyGame {
 		"alt" => 0
 	    }
 	}
-    };
+    );
+    print STDERR (\%dummy_volme_game);
+
     return \%dummy_volme_game;
 }
+
+1;

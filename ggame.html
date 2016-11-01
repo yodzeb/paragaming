@@ -1,20 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="game" >
   <head>
-    <title>{{game.id}}</title>
+    <title>{{gameid}}</title>
     <link href="css/ionic.css" rel="stylesheet">
     <link href="css/app.css" rel="stylesheet">
 
     <script src="js/ionic.bundle.js"></script>
     <script src="js/ng-map.min.js"></script>
     <script src="https://maps.google.com/maps/api/js?sensor=false"></script>
+
+    <script src="js/api_angular.js"></script>
     <script src="js/app_game.js"></script>
     <script src="api.js"></script>
+
     <script src="NoSleep.js"></script>      
 
   </head>
     
-  <body ng-app="game" ng-controller="GameCtrl">
+  <body >
     <ion-nav-view></ion-nav-view>
   </body>
 </html>

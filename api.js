@@ -43,15 +43,15 @@ function getOthers (map) {
 }
 
 
-
-function sendUpdate(crd) {
+function sendUpdate(crd, game) {
     var data = {
 	"cmd" : "up",
 	"c"   : {
 	    "lat": crd.latitude,
 	    "lon": crd.longitude,
 	    "alt": crd.altitude
-	}
+	},
+	"gid" : game.id
     }
 
     xhr = new XMLHttpRequest();

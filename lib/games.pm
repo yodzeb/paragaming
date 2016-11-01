@@ -7,9 +7,19 @@ use CGI;
 use CGI::Session;
 use Exporter qw(import);
  
-our @EXPORT = qw(getOthers updatePosition);
+our @EXPORT = qw(getOthers updatePosition getGameInfo registerUser);
 
-my $game_dir    = "/tmp/games/";
+my $game_dir    = "/tmp/game/";
+
+sub registerUser {
+    my $data     = shift;
+    my $session  = shift;
+
+    my $game_id  = $data->{'gid'};
+
+    $session->param("nickname") = $data->{'nick'};
+    $session->param("team")     = $data->{'team'};
+}
 
 sub updatePosition {
     my $data    = shift;
@@ -28,11 +38,7 @@ sub updatePosition {
     $session->param("positions", \%positions);
 
 
-    # foreach (keys (%positions)) {
-    #     $response.= $_." -> ".Dumper($positions{$_})."\n";
-    # }
-    # response;
-    return "";
+    return "ok";
 }
 
 sub getOthers {
@@ -61,6 +67,24 @@ sub getOthers {
     }
 
     return \%others;
+}
+
+
+sub getGameInfo {
+    my $game_id = shift;
+
+    my $my_game_dir = $game_dir."/".$game_id."/game";
+    my $res = "";
+
+    if (-e $my_game_dir) {
+	open (GAME, "< $my_game_dir");
+	while (<GAME>) {
+
+	    $res.=$_;
+	}
+    }
+
+    return  ($res);    
 }
 
 
