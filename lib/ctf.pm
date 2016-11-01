@@ -1,11 +1,29 @@
 #!/usr/bin/perl
 
+package ctf;
+
+use GPS::Point ;
 use JSON;
 use Exporter qw(import);
 use Data::Dumper;
-our @EXPORT_OK = qw(createCTF);
+
+BEGIN {push @INC, '/var/www/ctf/lib/'; };
+use games;
+
+our @EXPORT = qw(createCTF updateCTF);
 
 my $game_dir    = "/tmp/game/";
+
+sub updateCTF {
+    my $data    = shift;
+    my $session = shift;
+    
+    my $game = &games::readGame ($data->{'gid'}) ;
+
+    foreach ( keys ($game->{'wps'})) {
+	#if (
+    }
+}
 
 sub createCTF {
     my $game = shift;
@@ -16,15 +34,12 @@ sub createCTF {
 
     my $my_game_dir = $game_dir."/".$game_id;
 
-    print STDERR Dumper ($game);
-
     if (! -e $my_game_dir."/game" ) {
 	mkdir $my_game_dir || return "Cannot create game dir";
 	open (GAME, " > $my_game_dir/game") || return "Cannot create game $my_game_dir/game";
 	print GAME JSON->new->encode( $game );
 	close (GAME);
 	return 'ok';
-	
     }
     else {
 	return "Game already exists";

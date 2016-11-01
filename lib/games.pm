@@ -6,7 +6,10 @@ use JSON;
 use CGI;
 use CGI::Session;
 use Exporter qw(import);
- 
+
+BEGIN {push @INC, '/var/www/ctf/lib/'};
+use ctf;
+
 our @EXPORT = qw(getOthers updatePosition getGameInfo registerUser);
 
 my $game_dir    = "/tmp/game/";
@@ -37,8 +40,29 @@ sub updatePosition {
     $positions{$time} = { "lat" => $lat, "lon"=>$lon, "alt" => $alt };
     $session->param("positions", \%positions);
 
+    # Update the game
+    my $game = &readGame ( $data->{'gid'} );
+    if ($game->{'type'} =~ /CTF/) {
+	&ctf::updateCTF( $data, $session );
+    }
+    # elsif ...
 
     return "ok";
+}
+
+sub readGame {
+    my $game_id = shift;
+    my $my_game_dir = $game_dir."/".$game_id."/game";
+    my $res = "";
+
+    if (-e $my_game_dir) {
+	open (GAME, "< $my_game_dir");
+	while (<GAME>) {
+	    $res.=$_;
+	}
+    }
+    print STDERR "game:$my_game_dir  ".$res;
+    return JSON->new->decode ( $res );
 }
 
 sub getOthers {
@@ -48,10 +72,10 @@ sub getOthers {
     my $session_dir = $game_dir."/".$game_id."/";
 
     my @files = glob( $session_dir . '/cgisess_*' );
-    print STDERR $session_dir."\n";
+    #print STDERR $session_dir."\n";
     my %others;
     foreach my $cur_filename (@files) {
-	print STDERR $cur_filename."\n";
+	#print STDERR $cur_filename."\n";
 	
 	my $cur_sid     = $1 if $cur_filename =~  /cgisess_(.*)/;
 	next if ($cur_sid =~  /$sid/);
@@ -73,18 +97,9 @@ sub getOthers {
 sub getGameInfo {
     my $game_id = shift;
 
-    my $my_game_dir = $game_dir."/".$game_id."/game";
-    my $res = "";
+    my $res = &readGame ($game_id);
 
-    if (-e $my_game_dir) {
-	open (GAME, "< $my_game_dir");
-	while (<GAME>) {
-
-	    $res.=$_;
-	}
-    }
-
-    return  ($res);    
+    return  (JSON->new->encode($res));    
 }
 
 

@@ -75,7 +75,7 @@ if ($q->request_method eq "POST") {
     elsif ($command =~ /others/) {
 	my $others = &getOthers($game_id, $sid);
 	$response = JSON->new->encode( $others );
-	print STDERR "response : ". $response."\n";
+	#print STDERR "response : ". $response."\n";
     }
 
     elsif ($command =~ /create/) {
@@ -97,5 +97,5 @@ my $cookie = $q->cookie(CTFSID => $session->id);
 
 print $q->header( -type => 'text/plain',
 		  -cookie => $cookie);
-print STDERR $response;
+#print STDERR $response;
 print $response;
