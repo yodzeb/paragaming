@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+      #button {
+      line-height: 12px;
+      width: 100px;
+      font-size: 8pt;
+      font-family: tahoma;
+      margin-top: 1px;
+      margin-right: 2px;
+      position:absolute;
+      top:0;
+      left:0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div><input id="button" type="button" onclick="enableNoSleep()" value="sleep"></div>
+    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap" async defer></script>
+    <script src="NoSleep.js"></script>
+    <script src="ctf.js"></script>
+    <script src="api.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,19 @@
+<ion-pane>
+  <ion-header-bar class="bar-stable">
+    <h1 class="title">New Game</h1>
+  </ion-header-bar>
+  <ion-content class="has-header">
+    <div class="list ">
+      <label class="item item-input"><input type="text" placeholder="Nickname" ng-model="nick.name" > </label>
+      <label class="item item-input"><input type="text" placeholder="Game ID"  ng-model="game.id">    </label>
+
+      <label class="item item-input item-select">
+	<div class="input-label">Game</div>
+	<select ng-model="gametype">
+	  <option ng-repeat="t in types">{{t}}</option>
+	</select>
+      </label>    
+      <button class="button button-block button-positive" ng-click="start()">Start</button>
+    </div>
+  </ion-content>
+</ion-pane>
