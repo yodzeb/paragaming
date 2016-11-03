@@ -2,6 +2,7 @@
 
 package games;
 
+use strict;
 use JSON;
 use CGI;
 use CGI::Session;
@@ -39,6 +40,7 @@ sub updatePosition {
     }
     $positions{$time} = { "lat" => $lat, "lon"=>$lon, "alt" => $alt };
     $session->param("positions", \%positions);
+    $session->param("LAST_UPDATE", time());
 
     # Update the game
     my $game = &readGame ( $data->{'gid'} );
@@ -67,27 +69,52 @@ sub readGame {
 
 sub getOthers {
     my $game_id = shift;
-    my $cur_sid = shift;
+    my $sid = shift;
 
     my $session_dir = $game_dir."/".$game_id."/";
 
     my @files = glob( $session_dir . '/cgisess_*' );
     #print STDERR $session_dir."\n";
     my %others;
+
+    my $time = time()+10;
+
+    my $max_time = 600;
+    my @to_clean;
+
     foreach my $cur_filename (@files) {
 	#print STDERR $cur_filename."\n";
-	
 	my $cur_sid     = $1 if $cur_filename =~  /cgisess_(.*)/;
 	next if ($cur_sid =~  /$sid/);
+
 	my $cur_session = new CGI::Session(undef, $cur_sid, {Directory=>$session_dir});
 	my $other_pos   = $cur_session->param('positions');
 	next unless (defined($other_pos));
-	#print STDERR Dumper ($other_pos);
-	my $last_pos_id = (sort {$b <=> $a} keys($other_pos))[0];
-	my $pos = $other_pos->{$last_pos_id};
-	next if ($pos->{"alt"}==3);
-	$others{$cur_sid} = $pos;
-	#print STDERR "last: $cur_sid : " . $last_pos_id."\n";
+
+
+	my $a_time = $cur_session->param('LAST_UPDATE');
+	if (!defined($a_time)) {
+	    $a_time = time();
+	    $cur_session->param("LAST_UPDATE", time());
+	}
+
+	if ( ($time - $a_time) > $max_time ) {
+	    push (@to_clean, $cur_sid);
+	}
+	else {
+	    #print STDERR Dumper ($other_pos);
+	    my $last_pos_id = (sort { $b <=> $a} keys($other_pos))[0];
+	    print STDERR "sending".$last_pos_id;
+	    my $pos = $other_pos->{$last_pos_id};
+	    next if ($pos->{"alt"}==3);
+	    $others{$cur_sid} = $pos;
+	    #print STDERR "last: $cur_sid : " . $last_pos_id."\n";
+	}
+    }
+
+    foreach (@to_clean) {
+	my $cmd="rm -f ".$game_dir."/".$game_id."/cgisess_".$_;
+	` $cmd `;
     }
 
     return \%others;

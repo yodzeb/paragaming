@@ -19,6 +19,7 @@ angular.module('game', [ 'ionic', 'ngMap', 'Api'])
 	if (!( $stateParams.gameid == undefined )) {
 	    $scope.game.id         =  $stateParams.gameid;
 	    $scope.game.autoupdate = true;
+	    $scope.game.others     = {};
 	}
 	
 	// Global variables
@@ -29,9 +30,10 @@ angular.module('game', [ 'ionic', 'ngMap', 'Api'])
 	$scope.map  = { center: { latitude: 45, longitude: -73 }, zoom: 8 };
 	
 	$scope.my_marker;
+	$scope.my_marker_mapSet = false;
 		
 	$scope.updatePositionError = function (err) {
-	    //console.log (err);
+
 	}
 	
 	
@@ -60,7 +62,6 @@ angular.module('game', [ 'ionic', 'ngMap', 'Api'])
 
 	$scope.getGameInfo = function (gameid) {
 	    apiCtf.getGameInfo($scope.game.id).then(function(res) {
-		console.log(res);
 		$scope.game.info = res['data'];
 		$scope.updateAll();
 	    });
@@ -73,7 +74,31 @@ angular.module('game', [ 'ionic', 'ngMap', 'Api'])
 
 	    apiCtf.getOthers ($scope.game.id)
 		.then ( function (res) {
-		    
+		    var arr = [];
+		    for (o in res['data']) {
+			if (!($scope.game.others[o] == undefined)) {
+			    //update
+			    $scope.game.others[o]['lat'] = res['data'][o]['lat'];
+			    $scope.game.others[o]['lon'] = res['data'][o]['lon'];
+			    $scope.game.others[o]['alt'] = res['data'][o]['alt'];
+			    var center = new google.maps.LatLng($scope.game.others[o]['lat'], $scope.game.others[o]['lon']);
+			    $scope.game.others[o].marker.setPosition (center);
+			}
+			else {
+			    //create
+			    $scope.game.others[o] = res['data'][o];
+			    var center = new google.maps.LatLng($scope.game.others[o]['lat'], $scope.game.others[o]['lon']);
+			    var marker = new google.maps.Marker({
+				position: center,
+				title: "other"
+			    });
+			    $scope.game.others[o].mapSet = false;
+			    marker.setIcon('https://maps.google.com/mapfiles/ms/icons/orange-dot.png');
+			    $scope.game.others[o].marker = marker;
+			}
+			
+		    }
+		    $scope.updateAll();
 		});
 	}
 
@@ -93,10 +118,15 @@ angular.module('game', [ 'ionic', 'ngMap', 'Api'])
 	    // add wps
 	    for (w in $scope.game.wps_markers) {
 		var wps = $scope.game.wps_markers[w];
-		bounds.extend     ( wps.center );
+		bounds.extend     ( wps.getCenter() );
 	    }
 
 	    // add others
+	    for (o in $scope.game.others) {
+		var other = $scope.game.others[o].marker;
+		bounds.extend     (  new google.maps.LatLng(other.position.lat(), other.position.lng()));
+	    }
+
 	    map.fitBounds(bounds);       //# auto-zoom
 	    map.panToBounds(bounds);     //# auto-center
 	}
@@ -104,7 +134,6 @@ angular.module('game', [ 'ionic', 'ngMap', 'Api'])
 	$scope.updateMe = function (map) {
 	    var crd = $scope.game.my_crd;
 	    if (crd == undefined) {
-		console.log ("no my marker");
 		return;
 	    }
 	    var center = new google.maps.LatLng(crd.latitude, crd.longitude)
@@ -120,11 +149,19 @@ angular.module('game', [ 'ionic', 'ngMap', 'Api'])
 		$scope.my_marker.setIcon('https://maps.google.com/mapfiles/ms/icons/green-dot.png');
 	    else
 		$scope.my_marker.setIcon('https://maps.google.com/mapfiles/ms/icons/red-dot.png');
-	    $scope.my_marker.setMap(map);
+	    if (!$scope.my_marker_mapSet) {
+		$scope.my_marker.setMap(map);
+		$scope.my_marker_mapSet = true;
+	    }
 	}
 
 	$scope.updateOthers = function (map) {
-
+	    for (o in $scope.game.others) {
+		if (!( $scope.game.others[o].marker == undefined) && !$scope.game.others[o].mapSet) {
+		    $scope.game.others[o].marker.setMap(map);
+		    $scope.game.others[o].mapSet = true;
+		}
+	    }
 	}
 
 	$scope.updateWPS = function (map) {
@@ -132,7 +169,6 @@ angular.module('game', [ 'ionic', 'ngMap', 'Api'])
 		var arr = [];
 		for (w in $scope.game.info.wps) {
 		    var wps = $scope.game.info.wps[w];
-		    console.log(wps);
 		    var wpsCircle = new google.maps.Circle({
 			strokeColor: '#FF0000',
 			strokeOpacity: 0.8,
@@ -172,8 +208,6 @@ angular.module('game', [ 'ionic', 'ngMap', 'Api'])
 	    $scope.game.my_crd = p;
 	    $scope.updateAll();
 
-	    console.log("fake : ");
-	    console.log(p);
 	    apiCtf.sendUpdate(p, $scope.game.id);
 
 	}
