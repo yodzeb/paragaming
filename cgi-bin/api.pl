@@ -78,6 +78,11 @@ if ($q->request_method eq "POST") {
 	#print STDERR "response : ". $response."\n";
     }
 
+    elsif ( $command =~ /listGames/) {
+	my $games = &listGames ();
+	$response = JSON->new->encode( $games );
+    }
+
     elsif ($command =~ /create/) {
 	my $game = $data->{'game'};
 	my $game_type = $game->{'type'};

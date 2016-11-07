@@ -18,6 +18,17 @@ var api_app = angular.module('Api', [])
 		});
             },
 
+	    listGames: function () {
+		var data = {
+		    "cmd" : "listGames"
+		};
+		return $http({
+		    method : 'POST',
+                    url    : api_url,
+                    data   : data
+		});
+	    },
+
 	    sendUpdate: function (crd, gameid) {
 		var data = {
 		    "cmd" : "up",

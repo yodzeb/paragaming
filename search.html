@@ -1,1 +1,23 @@
-game search
+<!-- HEADER -->
+<ion-view>
+  <ion-nav-button class="button-clear" ng-click="goBack()">
+    <i class="icon ion-arrow-left-c"></i> Back
+  </ion-nav-button>
+  
+
+<!-- GAME LIST -->
+
+  <ion-content>
+    <div>
+      <a ng-repeat="g in all_games" class="item item-icon-left" href="/ggame.html#/game/{{g.id}}"><i class="icon ion-chevron-right"></i>{{ g.id }}</a>
+    </div>
+  </ion-content>
+</ion-view>
+
+<!-- FOOTER -->
+<div class="bar bar-footer " ng-class="{'bar-assertive': update_error==2, 'bar-balanced': update_error==1}">
+  <div ng-click="updateGames()" class="title">
+    {{footer_message}} 
+    <i class="icon ion-loop" ></i>
+  </div>
+</div>

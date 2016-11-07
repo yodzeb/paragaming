@@ -1,4 +1,4 @@
-angular.module('starter', ['ionic'])
+angular.module('starter', ['ionic', 'Api'])
 
     .config(function($stateProvider, $urlRouterProvider) {
 	$stateProvider
@@ -16,7 +16,8 @@ angular.module('starter', ['ionic'])
 	    })
 	    .state('search', {
 		url: '/search',
-		templateUrl: 'search.html'
+		templateUrl: 'search.html',
+		controller: 'searchCtrl'
 	    })
 	    .state('create', {
 		url: '/create/:gameid',
@@ -28,8 +29,9 @@ angular.module('starter', ['ionic'])
 	$urlRouterProvider.otherwise("index");
     })
 
-    .controller ('GameCreation', function ($scope, $http, $stateParams) {
+    .controller ('GameCreation', [ '$scope', '$http', '$stateParams', 'apiCtf', function ($scope, $http, $stateParams, apiCtf) {
 	
+
 	$scope.createGame = function ( gameid ) {
 	    $scope.status.push("Creating game '"+gameid+"'");
 	    var data = {
@@ -55,9 +57,9 @@ angular.module('starter', ['ionic'])
 	$scope.createGame($stateParams.gameid);
 	
 
-    })
+    }])
 
-    .controller('MainCtrl', function($scope) {
+    .controller('MainCtrl', [ '$scope', 'apiCtf',  function($scope, apiCtf) {
 	
 	$scope.game = { id:   "" };
 	$scope.nick = { name: "" };
@@ -86,4 +88,40 @@ angular.module('starter', ['ionic'])
 	$scope.pushNotification = { checked: true };
 	$scope.emailNotification = 'Subscribed';
 	
-    });
+    }])
+
+    .controller('searchCtrl', ['$scope', 'apiCtf', function ($scope, apiCtf) {
+	
+	$scope.all_games;
+	$scope.button = {};
+
+	$scope.update_error = false;
+	$scope.footer_message = "";
+
+	$scope.updateGames = function () {
+	    $scope.loading();
+	    apiCtf.listGames().then (function (res) {
+		$scope.all_games = res.data;
+		$scope.update_error = 1;
+		console.log($scope.all_games);
+		$scope.footer_message = $scope.all_games.length +" game"+(($scope.all_games.length > 1)?"s":"")+" found";
+	    }, function (res) {
+		$scope.update_error = 2;
+		$scope.footer_message = "error during loading";
+		//error
+	    });
+	};
+
+	$scope.loading = function (){
+	    $scope.update_error = 0;
+	    $scope.footer_message = "Loading";
+	    $scope.button.enabled = false;
+	}
+	$scope.not_loading = function () {
+	    $scope.button.text    = "Update!";
+	    $scope.button.enabled = true;
+	}
+
+	$scope.loading();;
+	$scope.updateGames();
+    }]);

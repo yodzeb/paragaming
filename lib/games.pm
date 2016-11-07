@@ -11,9 +11,23 @@ use Exporter qw(import);
 BEGIN {push @INC, '/var/www/ctf/lib/'};
 use ctf;
 
-our @EXPORT = qw(getOthers updatePosition getGameInfo registerUser);
+our @EXPORT = qw(getOthers updatePosition getGameInfo registerUser listGames);
 
 my $game_dir    = "/tmp/game/";
+
+sub listGames {
+    my @games =  glob( $game_dir . '/*/game' );
+    
+    my @res;
+
+    foreach (@games) {
+	if ($_ =~ /$game_dir\/([^\/]+)\/game/) {
+	    push @res, &readGame($1);
+	}
+    }
+    return \@res;
+		       
+}
 
 sub registerUser {
     my $data     = shift;

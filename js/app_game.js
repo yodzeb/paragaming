@@ -57,6 +57,7 @@ angular.module('game', [ 'ionic', 'ngMap', 'Api'])
 		apiCtf.sendUpdate(crd, $scope.game.id);
 		$scope.game.my_crd = crd;
 		$scope.updateAll();
+		apiCtf.listGames();
 	    }
 	}
 
