@@ -100,7 +100,7 @@ angular.module('starter', ['ionic', 'Api'])
 
 	$scope.updateGames = function () {
 	    $scope.loading();
-	    apiCtf.listGames().then (function (res) {
+	    apiCtf.listGames($scope.game.id).then (function (res) {
 		$scope.all_games = res.data;
 		$scope.update_error = 1;
 		console.log($scope.all_games);

@@ -18,9 +18,10 @@ var api_app = angular.module('Api', [])
 		});
             },
 
-	    listGames: function () {
+	    listGames: function (gameid) {
 		var data = {
-		    "cmd" : "listGames"
+		    "cmd" : "listGames",
+		    "gid" : gameid
 		};
 		return $http({
 		    method : 'POST',
