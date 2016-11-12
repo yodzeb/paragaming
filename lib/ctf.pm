@@ -2,7 +2,8 @@
 
 package ctf;
 
-use GPS::Point ;
+#use GPS::Point ;
+use Geo::Distance;
 use JSON;
 use Exporter qw(import);
 use Data::Dumper;
@@ -17,12 +18,37 @@ my $game_dir    = "/tmp/game/";
 sub updateCTF {
     my $data    = shift;
     my $session = shift;
+    my $last_pos = shift; # lazzy
     
     my $game = &games::readGame ($data->{'gid'}) ;
+    my $update = 0;
+    foreach my $wp ( keys (%{$game->{'wps'}})) {
 
-    foreach ( keys ($game->{'wps'})) {
-	#if (
+	my $geo = new Geo::Distance;
+	my $lat1= $last_pos->{'lat'};
+	my $lon1= $last_pos->{'lon'};
+	my $lon2 = $game->{'wps'}->{$wp}->{'lon'};
+	my $lat2 = $game->{'wps'}->{$wp}->{'lat'};
+	
+	my $distance = $geo->distance( 'meter', $lon1,$lat1=>$lon2,$lat2);
+	print STDERR "Distance: $distance\n";
+
+	if ( exists ($game->{'wps'}->{$wp}->{'taken_time'})  && (time() - $game->{'wps'}->{$wp}->{'taken_time'}) > 60) {
+	    print STDERR "reinit taken $wps\n";
+	    $game->{'wps'}->{$wp}->{'taken'} = 0;
+	    $update = 1;
+	}
+
+	if ($distance < $game->{'wps'}->{$wp}->{'radius'}) {
+	    print STDERR "got the flag $wp \n";
+	    $game->{'wps'}->{$wp}->{'taken'} = 1;
+	    $game->{'wps'}->{$wp}->{'taken_alt'} = $last_pos->{'alt'};
+	    $game->{'wps'}->{$wp}->{'taken_time'} = time();
+	    $update = 1;
+	}	
     }
+
+    &games::updateGame ($game ) if ($update);
 }
 
 sub createCTF {
@@ -45,6 +71,7 @@ sub createCTF {
 	return "Game already exists";
     }
 }
+
 
 
 sub dummyGame {

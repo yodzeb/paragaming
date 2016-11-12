@@ -11,9 +11,19 @@ use Exporter qw(import);
 BEGIN {push @INC, '/var/www/ctf/lib/'};
 use ctf;
 
-our @EXPORT = qw(getOthers updatePosition getGameInfo registerUser listGames);
+our @EXPORT = qw(getOthers updatePosition getGameInfo registerUser listGames updateGame);
 
 my $game_dir    = "/tmp/game/";
+
+sub updateGame {
+    my $game = shift;
+    my $game_id = $game->{'id'};
+    my $my_game_dir = $game_dir."/".$game_id;
+
+    open (GAME, " > $my_game_dir/game") || return "Cannot create game $my_game_dir/game";
+    print GAME JSON->new->encode( $game );
+    close (GAME);
+}
 
 sub listGames {
     my @games =  glob( $game_dir . '/*/game' );
@@ -59,7 +69,7 @@ sub updatePosition {
     # Update the game
     my $game = &readGame ( $data->{'gid'} );
     if ($game->{'type'} =~ /CTF/) {
-	&ctf::updateCTF( $data, $session );
+	&ctf::updateCTF( $data, $session, $positions{$time} );
     }
     # elsif ...
 

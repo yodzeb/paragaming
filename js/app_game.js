@@ -59,11 +59,11 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
 	    apiCtf.sendUpdate(crd, $scope.game.id);
 	    $scope.game.my_crd = crd;
 	    $scope.updateAll();
-	    apiCtf.listGames($scope.game.id);
+	    //apiCtf.listGames($scope.game.id);
 	}
     }
 
-    $scope.getGameInfo = function (gameid) {
+    $scope.getGameInfo = function () {
 	apiCtf.getGameInfo($scope.game.id).then(function(res) {
 	    $scope.game.info = res['data'];
 	    $scope.updateAll();
@@ -74,6 +74,8 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
     $scope.getPlayers =function () {
 	if ($scope.game.id == undefined ) 
 	    return;
+
+	$scope.getGameInfo();
 
 	apiCtf.getOthers ($scope.game.id)
 	    .then ( function (res) {
@@ -99,7 +101,6 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
 			marker.setIcon('https://maps.google.com/mapfiles/ms/icons/orange-dot.png');
 			$scope.game.others[o].marker = marker;
 		    }
-		    
 		}
 		$scope.updateAll();
 	    });
@@ -169,7 +170,7 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
 
     $scope.updateWPS = function (map) {
 	if ($scope.game.wps_markers == undefined) {
-	    var arr = [];
+	    var arr = {};
 	    for (w in $scope.game.info.wps) {
 		var wps = $scope.game.info.wps[w];
 		var wpsCircle = new google.maps.Circle({
@@ -183,9 +184,27 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
 		    center: {lat: parseFloat(wps.lat), lng: parseFloat(wps.lon)},
 		    radius: wps.radius
 		});
-		arr.push (wpsCircle);
+		arr[w]=wpsCircle;
 	    }		
 	    $scope.game.wps_markers = arr;
+	}
+	else {
+	    for (wps in $scope.game.wps_markers) {
+		if (!($scope.game.info.wps[wps].taken == undefined) &&
+		    $scope.game.info.wps[wps].taken == 1) {
+		    console.log($scope.game.wps_markers[wps]);
+		    $scope.game.wps_markers[wps].setOptions({
+			strokeColor: '#00FF00',
+			fillColor  : '#00FF00'
+		    });
+		}
+		else {
+		    $scope.game.wps_markers[wps].setOptions({
+			fillColor: '#FF0000',
+			strokeColor: '#FF0000'
+		    });
+		}
+	    }
 	}
     }
 
@@ -247,7 +266,7 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
 	enableHighAccuracy:true
     };
     navigator.geolocation.watchPosition( $scope.updatePosition, $scope.updatePositionError, options);
-    $interval ( $scope.getPlayers, 3000 );
+    $interval ( $scope.getPlayers, 10000 );
     $scope.getGameInfo();
     
 }]);
