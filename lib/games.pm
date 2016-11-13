@@ -7,6 +7,7 @@ use JSON;
 use CGI;
 use CGI::Session;
 use Exporter qw(import);
+use Data::Dumper;
 
 BEGIN {push @INC, '/var/www/ctf/lib/'};
 use ctf;
@@ -14,6 +15,7 @@ use ctf;
 our @EXPORT = qw(getOthers updatePosition getGameInfo registerUser listGames updateGame);
 
 my $game_dir    = "/tmp/game/";
+my $max_time = 600;
 
 sub updateGame {
     my $game = shift;
@@ -35,8 +37,7 @@ sub listGames {
 	    push @res, &readGame($1);
 	}
     }
-    return \@res;
-		       
+    return \@res;		       
 }
 
 sub registerUser {
@@ -92,31 +93,30 @@ sub readGame {
 
 sub getOthers {
     my $game_id = shift;
-    my $sid = shift;
-
+    my $sid     = shift;
     my $session_dir = $game_dir."/".$game_id."/";
-
-    my @files = glob( $session_dir . '/cgisess_*' );
-    #print STDERR $session_dir."\n";
+    my @files       = glob( $session_dir . '/cgisess_*' );
+    my $my_session  = new CGI::Session(undef, $sid, {Directory=>$session_dir}) ;;
+    my $my_pos      = &getLastPosition($my_session->param("positions"));
+    my $time        = time()+10;
     my %others;
-
-    my $time = time()+10;
-
-    my $max_time = 600;
     my @to_clean;
+    my $geo = new Geo::Distance;
 
     foreach my $cur_filename (@files) {
-	#print STDERR $cur_filename."\n";
 	my $cur_sid     = $1 if $cur_filename =~  /cgisess_(.*)/;
-	next if ($cur_sid =~  /$sid/);
-
 	my $cur_session = new CGI::Session(undef, $cur_sid, {Directory=>$session_dir});
 	my $other_pos   = $cur_session->param('positions');
-	next unless (defined($other_pos));
 
+
+	if  (!(ref($other_pos) eq 'HASH') || $cur_sid =~  /$sid/) {
+	    next;
+	}
 
 	my $a_time = $cur_session->param('LAST_UPDATE');
+	print STDERR "$a_time\n";
 	if (!defined($a_time)) {
+	    print STDERR "updating";
 	    $a_time = time();
 	    $cur_session->param("LAST_UPDATE", time());
 	}
@@ -125,12 +125,8 @@ sub getOthers {
 	    push (@to_clean, $cur_sid);
 	}
 	else {
-	    #print STDERR Dumper ($other_pos);
-	    my $last_pos_id = (sort { $b <=> $a} keys($other_pos))[0];
-	    my $pos = $other_pos->{$last_pos_id};
-	    next if ($pos->{"alt"}==3);
-	    $others{$cur_sid} = $pos;
-	    #print STDERR "last: $cur_sid : " . $last_pos_id."\n";
+	    $others{$cur_sid} = &getLastPosition($other_pos);
+	    $others{$cur_sid}->{'distance'} = int($geo->distance( 'meter', $my_pos->{'lon'},$my_pos->{'lat'}=>$others{$cur_sid}->{'lon'},$others{$cur_sid}->{'lat'}));
 	}
     }
 
@@ -142,6 +138,12 @@ sub getOthers {
     return \%others;
 }
 
+
+sub getLastPosition {
+    my $positions = shift;
+    my $last_pos_id = (sort { $b <=> $a} keys($positions))[0];
+    return ( $positions->{$last_pos_id} );
+}
 
 sub getGameInfo {
     my $game_id = shift;

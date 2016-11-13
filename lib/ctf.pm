@@ -74,7 +74,6 @@ sub createCTF {
 }
 
 
-
 sub dummyGame {
     my %dummy_volme_game = (
 	"antenna" => { 

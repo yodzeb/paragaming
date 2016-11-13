@@ -27,11 +27,11 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
     // Global variables
     $scope.button     = { 
 	nosleep : "NoSleep is OFF" ,
-	mapwps  : "WPS"
+	mapwps  : "WPS/PLAYERS"
     };
     $scope.variable   = { 
 	nosleep : false,
-	displaymap: true
+	displaymap: 0
     };
     var noSleep = new NoSleep();
     $scope.autoupdate = true;
@@ -64,14 +64,17 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
     }
 
     $scope.mapWPS = function () {
-	if ($scope.variable.displaymap) {
-	    $scope.button.mapwps = "MAP";
-	    $scope.updateAll();
+	$scope.variable.displaymap = ($scope.variable.displaymap+1)%3;
+	if ($scope.variable.displaymap == 0) {
+	    $scope.button.mapwps = "WPS/PLAYERS";
+	    $scope.updateAll();	    
+	}
+	else if ($scope.variable.displaymap == 1) {
+	    $scope.button.mapwps = "PLAYERS/MAP";
 	}
 	else {
-	    $scope.button.mapwps = "WPS";
+	    $scope.button.mapwps = "MAP/WPS";
 	}
-	$scope.variable.displaymap = !$scope.variable.displaymap;
     }
     
     /****************
@@ -110,6 +113,7 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
 	apiCtf.getOthers ($scope.game.id)
 	    .then ( function (res) {
 		var arr = [];
+		console.log(res.data);
 		for (o in res['data']) {
 		    if (!($scope.game.others[o] == undefined)) {
 			//update
@@ -297,7 +301,7 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
 	enableHighAccuracy:true
     };
     navigator.geolocation.watchPosition( $scope.updatePosition, $scope.updatePositionError, options);
-    $interval ( $scope.getPlayers, 10000 );
+    $interval ( $scope.getPlayers, 5000 );
     $scope.getGameInfo();
     
 }]);
