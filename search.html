@@ -8,9 +8,19 @@
 <!-- GAME LIST -->
 
   <ion-content>
-    <div>
-      <a ng-repeat="g in all_games" class="item item-icon-left" href="/ggame.html#/game/{{g.id}}"><i class="icon ion-chevron-right"></i>{{ g.id }}</a>
+
+    <div class="list">
+      <div class="item item-button-right item-icon-left " ng-repeat="g in all_games">
+	<a href="/ggame.html#/game/{{g.id}}" >
+	  <i class="icon ion-eye"></i>
+	  {{ g.id }}
+	</a>
+	<button class="button button-positive" ng-click="join(g.id)">
+	  <i class="icon ion-plus"></i>
+	</button>
+      </div>
     </div>
+
   </ion-content>
 </ion-view>
 

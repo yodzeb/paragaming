@@ -12,6 +12,19 @@
     left:0;
 }
 
+.taken {
+    background-color: green;
+}
+
+.not_taken {
+    background-color: red;
+}
+
+
+hide {
+    display:none;
+}
+
 ng-map {
     display: inline !important;
     //width:100% !important;  

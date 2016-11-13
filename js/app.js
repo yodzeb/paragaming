@@ -90,6 +90,10 @@ angular.module('starter', ['ionic', 'Api'])
 	
     }])
 
+    .controller('joinGame', ['$scope', 'apiCtf', function ($scope, apiCtf) {
+	
+    }])
+
     .controller('searchCtrl', ['$scope', 'apiCtf', function ($scope, apiCtf) {
 	
 	$scope.all_games;

@@ -87,7 +87,6 @@ sub readGame {
 	    $res.=$_;
 	}
     }
-    print STDERR "game:$my_game_dir  ".$res;
     return JSON->new->decode ( $res );
 }
 
@@ -128,7 +127,6 @@ sub getOthers {
 	else {
 	    #print STDERR Dumper ($other_pos);
 	    my $last_pos_id = (sort { $b <=> $a} keys($other_pos))[0];
-	    print STDERR "sending".$last_pos_id;
 	    my $pos = $other_pos->{$last_pos_id};
 	    next if ($pos->{"alt"}==3);
 	    $others{$cur_sid} = $pos;

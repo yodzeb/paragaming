@@ -31,11 +31,11 @@ sub updateCTF {
 	my $lat2 = $game->{'wps'}->{$wp}->{'lat'};
 	
 	my $distance = $geo->distance( 'meter', $lon1,$lat1=>$lon2,$lat2);
-	print STDERR "Distance: $distance\n";
 
 	if ( exists ($game->{'wps'}->{$wp}->{'taken_time'})  && (time() - $game->{'wps'}->{$wp}->{'taken_time'}) > 60) {
 	    print STDERR "reinit taken $wps\n";
 	    $game->{'wps'}->{$wp}->{'taken'} = 0;
+	    $game->{'wps'}->{$wp}->{'taken_alt'} = 0;
 	    $update = 1;
 	}
 
@@ -43,6 +43,7 @@ sub updateCTF {
 	    print STDERR "got the flag $wp \n";
 	    $game->{'wps'}->{$wp}->{'taken'} = 1;
 	    $game->{'wps'}->{$wp}->{'taken_alt'} = $last_pos->{'alt'};
+	    print STDERR $last_pos->{'alt'}."\n";
 	    $game->{'wps'}->{$wp}->{'taken_time'} = time();
 	    $update = 1;
 	}	

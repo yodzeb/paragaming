@@ -49,6 +49,7 @@ if ($q->request_method eq "POST") {
     # }
     # els
     if ($command =~ /up/) {
+	print STDERR Dumper ($data);
 	$response = &updatePosition ( $data, $session );
     }
     elsif ( $command =~ /register/ ){

@@ -25,8 +25,14 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
     }
     
     // Global variables
-    $scope.button     = { nosleep : "NoSleep if OFF" };
-    $scope.variable   = { nosleep : false };
+    $scope.button     = { 
+	nosleep : "NoSleep is OFF" ,
+	mapwps  : "WPS"
+    };
+    $scope.variable   = { 
+	nosleep : false,
+	displaymap: true
+    };
     var noSleep = new NoSleep();
     $scope.autoupdate = true;
     
@@ -44,7 +50,6 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
     /***********
      *   UI 
      **********/
-
     $scope.enableNoSleep = function () {
 	if ( $scope.variable.nosleep ){
 	    noSleep.disable();
@@ -54,10 +59,20 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
 	else {
 	    $scope.variable.nosleep = true;
 	    noSleep.enable();
-	    $scope.button.nosleep = "NoSLeep is ON";
+	    $scope.button.nosleep = "NoSleep is ON";
 	}
     }
 
+    $scope.mapWPS = function () {
+	if ($scope.variable.displaymap) {
+	    $scope.button.mapwps = "MAP";
+	    $scope.updateAll();
+	}
+	else {
+	    $scope.button.mapwps = "WPS";
+	}
+	$scope.variable.displaymap = !$scope.variable.displaymap;
+    }
     
     /****************
      *   GAME CORE
@@ -75,6 +90,12 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
     $scope.getGameInfo = function () {
 	apiCtf.getGameInfo($scope.game.id).then(function(res) {
 	    $scope.game.info = res['data'];
+	    var arr_wps = [];
+	    for (w in $scope.game.info.wps) {
+		$scope.game.info.wps[w].name = w;
+		arr_wps.push($scope.game.info.wps[w]);
+	    }
+	    $scope.game.info.wps = arr_wps;
 	    $scope.updateAll();
 	});
 
@@ -193,26 +214,27 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
 		    center: {lat: parseFloat(wps.lat), lng: parseFloat(wps.lon)},
 		    radius: wps.radius
 		});
-		arr[w]=wpsCircle;
+		arr[wps.name]=wpsCircle;
 	    }		
 	    $scope.game.wps_markers = arr;
 	}
 	else {
-	    for (wps in $scope.game.wps_markers) {
-		if (!($scope.game.info.wps[wps].taken == undefined) &&
-		    $scope.game.info.wps[wps].taken == 1) {
-		    console.log($scope.game.wps_markers[wps]);
-		    $scope.game.wps_markers[wps].setOptions({
+	    for (w in $scope.game.info.wps) {
+		var wps = $scope.game.info.wps[w];
+		if (!(wps.taken == undefined) &&
+		    wps.taken == 1) {
+		    $scope.game.wps_markers[wps.name].setOptions({
 			strokeColor: '#00FF00',
 			fillColor  : '#00FF00'
 		    });
 		}
 		else {
-		    $scope.game.wps_markers[wps].setOptions({
+		    $scope.game.wps_markers[wps.name].setOptions({
 			fillColor: '#FF0000',
 			strokeColor: '#FF0000'
 		    });
 		}
+		
 	    }
 	}
     }
@@ -234,7 +256,7 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
 	    return;
 	}
 
-	var p = { "latitude": pos.lat(), "longitude": pos.lng(), "altitude": "0" };
+	var p = { "latitude": pos.lat(), "longitude": pos.lng(), "altitude": "234" };
 
 	$scope.game.my_crd = p;
 	$scope.updateAll();
