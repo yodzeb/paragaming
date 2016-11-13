@@ -25,7 +25,9 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
     }
     
     // Global variables
-    $scope.button     = { nosleep : "Disable Auto Sleep" };
+    $scope.button     = { nosleep : "NoSleep if OFF" };
+    $scope.variable   = { nosleep : false };
+    var noSleep = new NoSleep();
     $scope.autoupdate = true;
     
     $scope.nick = { name: "" };
@@ -44,9 +46,16 @@ app.controller('GameCtrl',['$scope','NgMap','$interval','$stateParams','$state',
      **********/
 
     $scope.enableNoSleep = function () {
-	noSleep.enable();
-	document.removeEventListener('touchstart', enableNoSleep, false);
-	$scope.button.nosleep = "No Sleep Activated!";
+	if ( $scope.variable.nosleep ){
+	    noSleep.disable();
+	    $scope.variable.nosleep = false;
+	    $scope.button.nosleep = "NoSleep is OFF";
+	}
+	else {
+	    $scope.variable.nosleep = true;
+	    noSleep.enable();
+	    $scope.button.nosleep = "NoSLeep is ON";
+	}
     }
 
     

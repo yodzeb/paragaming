@@ -1,13 +1,33 @@
-<div layout="column" layout-gt-xs="row" layout-fill>
-  <div   style='min-height: 90%; min-width: 90%' layout-fill>
+<!-- <div layout="column" layout-gt-xs="row" layout-fill> -->
+<!--   <div   style='min-height: 90%; min-width: 90%' layout-fill> -->
+<!--       <ng-map zoom="11" > -->
+<!-- 	<control name="overviewMap" opened="true" /> -->
+<!--       </ng-map> -->
+<!--   </div> -->
+<!--   <div layout="row" style="'min-width: 90%'" layout-gt-xs="column"  layout-fill  layout-align="center center" > -->
+<!--     <\!-- <div style='min-height: 25%; min-width: 25%' layout-fill>{{button.nosleep}}</div> -\-> -->
+<!--     <button style='min-height: 10%; min-width: 10%' layout-fill  ng-click="enableNoSleep()">{{button.nosleep}}</button> -->
+<!--     <button style='min-height: 10%; min-width: 10%' layout-fill>2</button> -->
+<!--     <button style='min-height: 10%; min-width: 10%' layout-fill>3</button> -->
+<!--     <button style='min-height: 10%; min-width: 10%' layout-fill>4</button> -->
+<!--   </div> -->
+<!-- </div> -->
+
+<div layout-xs="column" layout-gt-xs="row" layout-fill >
+  <div flex-gt-xs="85" flex-xs="85">
+    <div layout-fill>
       <ng-map zoom="11" >
 	<control name="overviewMap" opened="true" />
-      </ng-map> 
+      </ng-map>
+    </div>
   </div>
-  <div layout="row" style="'min-width: 90%'" layout-gt-xs="column"  layout-fill >
-    <div style='min-height: 25%; min-width: 25%' layout-fill>Tracking</div>
-    <div style='min-height: 25%; min-width: 25%' layout-fill>2</div>
-    <div style='min-height: 25%; min-width: 25%' layout-fill>3</div>
-    <div style='min-height: 25%; min-width: 25%' layout-fill>4</div>
+  <div flex-gt-xs="15" flex-xs="15">
+    <div layout-xs="row" layout-gt-xs="column"   layout-align="center center" layout-fill>
+      <!-- <div style='min-height: 25%; min-width: 25%' layout-fill>{{button.nosleep}}</div> -->
+      <button style='min-height: 10%; min-width: 10%' layout-fill ng-click="enableNoSleep()">{{button.nosleep}}</button>
+      <button style='min-height: 10%; min-width: 10%' layout-fill>2</button>
+      <button style='min-height: 10%; min-width: 10%' layout-fill>3</button>
+      <button style='min-height: 10%; min-width: 10%' layout-fill>4</button>
+    </div>
   </div>
 </div>
